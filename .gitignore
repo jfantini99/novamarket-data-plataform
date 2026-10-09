@@ -1,0 +1,49 @@
+# Secrets - NUNCA commitar
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials
+.aws/
+*.tfvars
+!*.tfvars.example
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl.bak
+crash.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Dados gerados localmente (reproduziveis via `novamarket data generate`)
+data/generated/
+data/landing/
+*.parquet
+*.csv.gz
+
+# Docker / Airflow
+airflow/logs/
+airflow/*.pid
+docker/volumes/
+
+# Estado selado do laboratorio (causas raiz de incidentes)
+.novamarket/_sealed/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,59 @@
+# Estado persistente do laboratorio. Atualizado a cada fase/ticket/incidente.
+# Causas raiz de incidentes NAO ficam aqui: ficam em .novamarket/_sealed/ (ignorado pelo Git).
+
+engineer:
+  name: "João Victor"
+  role: "Junior Data Engineer"
+  team: "Data Platform"
+  squad: "Sales Data"
+  level: 1            # 1 Onboarding | 2 Junior | 3 Junior avançado | 4 Production Support | 5 Data Platform | 6 Arquitetura
+
+language:
+  docs_and_tickets: pt-BR
+  code_and_technical_names: en
+
+lab:
+  current_phase: 3
+  phases:
+    0: { name: "Análise do ambiente",      status: done }
+    1: { name: "Estrutura do repositório", status: done }
+    2: { name: "Infraestrutura local",     status: done }
+    3: { name: "Fontes de dados",          status: done }
+    4: { name: "AWS",                      status: pending }
+    5: { name: "Airflow",                  status: pending }
+    6: { name: "Snowflake",                status: pending }
+    7: { name: "Data Quality",             status: pending }
+    8: { name: "Observabilidade",          status: pending }
+    9: { name: "CI/CD",                    status: pending }
+    10: { name: "Skills e CLI",            status: pending }
+    11: { name: "Tickets e incidentes",    status: pending }
+    12: { name: "Validação completa",      status: pending }
+
+tickets:
+  active: []
+  done: []
+
+incidents: []
+
+architecture:
+  orchestration: "Airflow (Docker, LocalExecutor)"
+  lake: "S3 (RustFS local em dev; S3 real na Fase 4)"
+  warehouse: "Snowflake (conta trial criada só na Fase 6)"
+  iac: "Terraform (dev aplicável; prod apenas preparado)"
+  source_systems: [ecommerce_api, erp_postgres, logistics_csv, marketing_api, customer_service]
+
+decisions:
+  - { date: "2026-10-09", decision: "MinIO saiu do Docker Hub; S3 local passa a ser RustFS. Bucket criado com AWS CLI em container." }
+  - { date: "2026-10-09", decision: "Projeto em C:\\dev\\novamarket-data-plataform (fora do OneDrive)" }
+  - { date: "2026-10-09", decision: "Nome do repositório mantido como 'plataform' (escolha do engenheiro)" }
+  - { date: "2026-10-09", decision: "Docs e tickets em pt-BR; código e nomes técnicos em inglês" }
+  - { date: "2026-10-09", decision: "Orçamento: custo mínimo (meta < R$ 50 no total). Sem RDS/NAT/ECS sem aprovação explícita." }
+  - { date: "2026-10-09", decision: "Segredos em Parameter Store (não Secrets Manager) para economizar" }
+  - { date: "2026-10-09", decision: "Conta Snowflake trial criada só na Fase 6 para não desperdiçar os 30 dias" }
+
+changes:
+  - { date: "2026-10-09", change: "Fase 3: gerador de dados (tiny/small/medium) com defeitos e manifesto selado, ERP carregado no Postgres, mock APIs e-commerce/marketing em :8081 com chaos, CSVs de logística e exports de CX" }
+  - { date: "2026-10-09", change: "Fase 2: Postgres ERP (5433) e S3 local RustFS (9000/9001) via Docker; venv Python 3.12 com uv; testes de infra" }
+
+skills_available: []   # preenchido na Fase 10
+

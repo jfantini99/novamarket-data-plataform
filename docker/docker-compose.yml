@@ -1,0 +1,85 @@
+# Infraestrutura local do laboratório (Fase 2).
+# Uso: make up / make down  (ou: docker compose --env-file .env -f docker/docker-compose.yml up -d)
+# Airflow entra na Fase 5 neste mesmo arquivo.
+
+name: novamarket
+
+services:
+  erp-postgres:
+    image: postgres:16-alpine
+    container_name: nm-erp-postgres
+    environment:
+      POSTGRES_DB: ${ERP_DB_NAME}
+      POSTGRES_USER: ${ERP_DB_USER}
+      POSTGRES_PASSWORD: ${ERP_DB_PASSWORD}
+    ports:
+      - "${ERP_DB_PORT}:5432"
+    volumes:
+      - erp_pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ERP_DB_USER} -d ${ERP_DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    mem_limit: 512m
+
+  # S3 local compatível com a API da AWS (substitui o S3 real em dev, sem custo).
+  s3:
+    image: rustfs/rustfs:latest
+    container_name: nm-s3
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_LOCAL_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${S3_LOCAL_SECRET_KEY}
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ENABLE: "true"
+    command: /data
+    ports:
+      - "9000:9000"   # API S3
+      - "9001:9001"   # console web
+    volumes:
+      - s3_data:/data
+    mem_limit: 512m
+
+  # Cria o bucket e as camadas do lake usando o AWS CLI (o mesmo que você usará na AWS real).
+  s3-init:
+    image: amazon/aws-cli:latest
+    container_name: nm-s3-init
+    depends_on:
+      - s3
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_LOCAL_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${S3_LOCAL_SECRET_KEY}
+      AWS_DEFAULT_REGION: ${AWS_REGION}
+      BUCKET: ${NOVAMARKET_S3_BUCKET}
+    entrypoint: >
+      /bin/sh -c "
+      for i in $$(seq 1 30); do
+        aws --endpoint-url http://s3:9000 s3api head-bucket --bucket $$BUCKET 2>/dev/null && break;
+        aws --endpoint-url http://s3:9000 s3 mb s3://$$BUCKET 2>/dev/null && break;
+        sleep 2;
+      done;
+      for layer in raw staging processed curated quarantine archive; do
+        aws --endpoint-url http://s3:9000 s3api put-object --bucket $$BUCKET --key $$layer/ >/dev/null;
+      done;
+      echo 'bucket pronto:' $$BUCKET &&
+      aws --endpoint-url http://s3:9000 s3 ls s3://$$BUCKET
+      "
+    restart: "no"
+
+  # APIs simuladas (E-commerce e Marketing) servindo data/generated/, com falhas injetáveis.
+  mock-apis:
+    build: ./mock-apis
+    container_name: nm-mock-apis
+    environment:
+      MOCK_API_KEY: ${MOCK_API_KEY}
+      DATA_DIR: /data
+    ports:
+      - "8081:8000"
+    volumes:
+      - ../data/generated:/data:ro
+    mem_limit: 1g
+
+volumes:
+  erp_pgdata:
+  s3_data:
