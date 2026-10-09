@@ -1,0 +1,14 @@
+id: INC-002
+title: Ingestão de pedidos falha à noite
+severity: SEV1
+status: SCHEDULED
+reported_by: Beatriz Luz (Senior DE)
+related_ticket: NM-009
+symptoms:
+- A DAG de pedidos falha ou entrega campos vazios nos últimos 2 dias
+- Nenhuma mudança de código do nosso lado
+impact: Pedidos novos não chegam ao lake; previsão de demanda e BI desatualizados.
+evidence_locations:
+- airflow/logs/
+- raw/sales/orders/
+- data/observability/runs.jsonl

@@ -28,3 +28,18 @@ def test_dependency_done_unblocks(tmp_path):
 
 def test_missing_dirs_return_empty(tmp_path):
     assert load_tickets(tmp_path) == [] and load_incidents(tmp_path) == []
+
+
+def test_real_backlog_is_consistent():
+    from novamarket.work import ROOT
+
+    tickets = load_tickets(ROOT)
+    ids = {t["id"] for t in tickets}
+    assert len(tickets) == 12
+    assert {t["level"] for t in tickets} == {1, 2, 3, 4, 5, 6}
+    for t in tickets:
+        assert set(t.get("depends_on") or []) <= ids
+        assert t["acceptance_criteria"]
+    assert [t["id"] for t in tickets if t["status"] == "READY"] == ["NM-001"]
+    incident_ids = {i["id"] for i in load_incidents(ROOT)}
+    assert {t["incident"] for t in tickets if t.get("incident")} <= incident_ids

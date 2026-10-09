@@ -1,0 +1,31 @@
+id: NM-008
+title: Receita do BI diferente da do Financeiro
+level: 4
+type: incident
+status: BACKLOG
+priority: P1
+requester: Marina Castro (Finance) / Lucas Prado (BI)
+estimate: 3-5 dias
+depends_on:
+- NM-003
+incident: INC-001
+slack: 'Lucas: ''A receita de ontem no dashboard está maior que a do Financeiro. A Marina está em cima.
+  Preciso de uma explicação ainda hoje.'''
+business_context: O fechamento financeiro exige números exatos. Credibilidade do time de dados em jogo.
+description: Investigar por que a receita calculada a partir do lake difere do número oficial, identificar
+  a causa raiz e corrigir de forma permanente.
+acceptance_criteria:
+- Linha do tempo e evidências da investigação documentadas
+- Causa raiz identificada (não só o sintoma)
+- Correção permanente + reprocessamento verificado
+- Check de qualidade que impediria a reincidência
+- Post-mortem curto em runbooks/
+notes:
+- 'Use /investigate-incident INC-001. A solução não está pronta: comece pela triagem.'
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- Compare contagens entre fonte, raw e staging antes de olhar o código.

@@ -1,0 +1,29 @@
+id: NM-009
+title: Pipeline de pedidos quebrou após mudança na API
+level: 5
+type: incident
+status: BACKLOG
+priority: P1
+requester: Beatriz Luz (Senior DE)
+estimate: 1 semana
+depends_on:
+- NM-003
+incident: INC-002
+slack: 'Beatriz: ''Pessoal, a ingestão de pedidos começou a falhar à noite. Alguém mexeu na API?'''
+business_context: Sem pedidos novos, dashboards e previsão de demanda ficam desatualizados.
+description: 'Tratar um schema drift na fonte: detectar, conter o dano, adaptar o pipeline e reprocessar
+  sem perder dados.'
+acceptance_criteria:
+- Mitigação imediata documentada (contenção antes da correção)
+- Detecção automática de drift no futuro (contrato/validação de schema)
+- Reprocessamento sem duplicar
+- Comunicado aos consumidores (rascunho no ticket)
+notes:
+- 'Ative o incidente quando estiver pronto: o Tech Lead libera o cenário.'
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- Falhar alto ou degradar silenciosamente? Qual é pior para o negócio?

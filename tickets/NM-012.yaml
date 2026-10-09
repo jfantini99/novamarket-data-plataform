@@ -1,0 +1,28 @@
+id: NM-012
+title: 'Revisão de arquitetura: pronto para produção?'
+level: 6
+type: architecture_review
+status: BACKLOG
+priority: P3
+requester: Marcos Teixeira (Tech Lead)
+estimate: 1 semana
+depends_on:
+- NM-008
+- NM-009
+- NM-010
+slack: 'Marcos: ''Antes de pensar em produção, quero ouvir de você: o que ainda é frágil, o que custaria
+  caro e o que eu não deveria deixar rodar sem alerta?'''
+business_context: Helena (CTO) quer um parecer de risco e custo antes de qualquer promoção.
+description: 'Elaborar uma avaliação técnica do estado do lab: riscos, custo, observabilidade, segurança
+  e plano para Snowflake/AWS real.'
+acceptance_criteria:
+- Documento de riscos priorizados (impacto x probabilidade)
+- Estimativa de custo mensal em dev e prod
+- Plano de evolução (Snowflake, CD com aprovação, DR básico)
+- Defesa oral simulada com o Tech Lead
+notes:
+- É um ticket de pensamento, não de código.
+definition_of_done:
+- Documento revisado pelo Tech Lead
+hints:
+- O que acontece se o único engenheiro que conhece este pipeline sair de férias?

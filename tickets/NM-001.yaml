@@ -1,0 +1,34 @@
+id: NM-001
+title: Primeira ingestão de vendas (pedidos, itens e pagamentos)
+level: 1
+type: ingestion
+status: READY
+priority: P2
+requester: Sofia Andrade (Data PO)
+estimate: 2-3 dias
+depends_on: []
+slack: 'Sofia: ''Oi João! O time de BI (Lucas) está sem dados de vendas no lake. Consegue trazer pedidos,
+  itens e pagamentos da API do e-commerce? Já temos clientes, então dá pra seguir o mesmo caminho. Valeu!'''
+business_context: Vendas é a base de todo dashboard da empresa. Hoje o BI consulta exportações manuais.
+  Precisamos de uma ingestão diária confiável no raw.
+description: Criar a ingestão diária de orders, order_items e payments da E-commerce API para a camada
+  raw do data lake, orquestrada no Airflow.
+acceptance_criteria:
+- As 3 entidades chegam em raw/sales/<entity>/year=/month=/day=/ no padrão de nomes do lake
+- Janela incremental baseada no data interval (não em now())
+- Pool, retries com backoff e timeouts configurados; a API é compartilhada e instável
+- Reexecutar o mesmo dia não duplica nem perde dados
+- Métricas registradas e SLA definido
+- Pelo menos um teste automatizado
+notes:
+- Leia docs/data/data-sources.md e docs/architecture/data-lake-conventions.md.
+- Compare com airflow/dags/ingest_customers.py, mas pense no que muda com mais volume.
+- O dicionário de dados é incompleto. Explore a API antes de assumir.
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- Quantas páginas a API devolve num dia? Como isso afeta timeout e memória?
+- O que acontece se a task cair no meio da paginação e rodar de novo?

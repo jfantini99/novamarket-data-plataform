@@ -1,0 +1,29 @@
+id: NM-006
+title: Carga do ERP (produtos e estoque) com upsert
+level: 3
+type: ingestion
+status: BACKLOG
+priority: P3
+requester: Diego Fontana (Data Engineer)
+estimate: 3 dias
+depends_on:
+- NM-001
+slack: 'Diego: ''Produto e estoque vêm do Postgres do ERP. Se a gente fizer full load todo dia vai incomodar
+  o time do ERP. Tem como ser incremental?'''
+business_context: O ERP é transacional e não pode ser sobrecarregado por extrações.
+description: Extrair erp.products e inventory.stock do PostgreSQL com estratégia incremental (ou justificar
+  full), respeitando o pool erp_db.
+acceptance_criteria:
+- Estratégia documentada (watermark, full ou snapshot) com trade-offs
+- Não depende de now()
+- Dados sensíveis tratados segundo Governança
+- Linhas deletadas ou alteradas na origem são consideradas (ou a limitação é documentada)
+notes:
+- 'Há colunas nulas e valores negativos no estoque: decida o que fazer e por quê.'
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- Que coluna do ERP serviria de watermark? Ela é confiável?

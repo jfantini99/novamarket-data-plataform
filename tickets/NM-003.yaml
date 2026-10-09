@@ -1,0 +1,31 @@
+id: NM-003
+title: Staging de vendas em Parquet
+level: 2
+type: transformation
+status: BACKLOG
+priority: P2
+requester: Fernanda Costa (Analytics Engineer)
+estimate: 3 dias
+depends_on:
+- NM-001
+- NM-002
+slack: 'Fernanda: ''Preciso de vendas tipadas e sem duplicatas pra modelar. Timestamps estão um caos aqui.
+  Dá pra padronizar?'''
+business_context: O modelo dimensional depende de dados limpos e com tipos consistentes.
+description: 'Transformar raw de vendas em staging (Parquet particionado): tipos corretos, timestamps
+  em UTC, deduplicação e rejeitados para quarantine.'
+acceptance_criteria:
+- Parquet particionado em staging/sales/<entity>/ seguindo a convenção
+- Timestamps normalizados para UTC (há formatos mistos na fonte)
+- Duplicatas removidas de forma determinística (qual versão vence?)
+- Registros inválidos vão para quarantine/ com o motivo
+- Compatível com Spark/Delta no futuro (sem tipos exóticos)
+notes:
+- Decida e documente a regra de desempate de duplicatas.
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- updated_at não é a única pista de qual versão é a mais recente.

@@ -1,0 +1,29 @@
+id: NM-004
+title: Painel de saúde dos pipelines de ingestão
+level: 2
+type: observability
+status: BACKLOG
+priority: P3
+requester: Paula Reis (SRE)
+estimate: 2 dias
+depends_on:
+- NM-001
+slack: 'Paula: ''Ontem descobri que um pipeline ficou 2 dias sem rodar e ninguém viu. Quero que isso apareça
+  sozinho.'''
+business_context: Pipelines silenciosos são incidentes esperando para acontecer.
+description: Garantir que todos os pipelines de ingestão estejam no status/SLA e criar um alerta simples
+  (arquivo/log) para FAILED e LATE.
+acceptance_criteria:
+- Todos os pipelines existentes têm SLA justificado em configs/sla.yaml
+- '`novamarket pipeline status` cobre os pipelines de vendas'
+- Um mecanismo de alerta para FAILED/LATE (pode ser local, documente a evolução para CloudWatch)
+- Runbook curto em docs/runbooks/
+notes:
+- 'Pense: SLA é para quem? O que o consumidor realmente precisa?'
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- Um pipeline que nunca rodou aparece como? Isso é suficiente?

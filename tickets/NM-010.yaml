@@ -1,0 +1,30 @@
+id: NM-010
+title: Arquivo de logística truncado e dados corrompidos
+level: 5
+type: incident
+status: BACKLOG
+priority: P2
+requester: Paula Reis (SRE)
+estimate: 1 semana
+depends_on:
+- NM-007
+incident: INC-003
+slack: 'Paula: ''O dashboard de entregas mostra menos eventos que o normal e os cliques de marketing têm
+  lixo.'''
+business_context: Entregas e campanhas medidos com dados incompletos levam a decisões erradas.
+description: Investigar perda de dados em arquivos, isolar os registros ruins sem parar a carga e reprocessar
+  com segurança.
+acceptance_criteria:
+- Causa raiz e escopo (quais dias/arquivos) identificados
+- Registros corrompidos isolados em quarantine/ sem derrubar a carga
+- Reprocessamento idempotente validado com data quality
+- Alerta que detectaria o problema mais cedo
+notes:
+- Ative o incidente quando estiver pronto.
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- Tamanho do arquivo é um bom sinal? Comparado com o quê?

@@ -1,0 +1,30 @@
+id: NM-005
+title: Ingestão incremental do Marketing com backfill
+level: 3
+type: ingestion
+status: BACKLOG
+priority: P2
+requester: Thiago Nunes (PM E-commerce)
+estimate: 4 dias
+depends_on:
+- NM-001
+slack: 'Thiago: ''Preciso do ROI das campanhas até sexta! Os dados de marketing já estão na API, é só
+  puxar, né? Precisamos do histórico também.'''
+business_context: Marketing investe pesado e quer medir conversão por campanha.
+description: Ingerir campaigns, impressions, clicks e conversions da Marketing API, com carga incremental
+  diária e backfill histórico controlado.
+acceptance_criteria:
+- Incremental diário + DAG/parâmetros para backfill de um intervalo
+- Backfill não derruba a API nem estoura o pool
+- Idempotência comprovada por teste
+- Linhas corrompidas não derrubam a carga inteira
+- Requisitos ambíguos do Thiago esclarecidos e registrados no ticket
+notes:
+- O requisito está vago de propósito. Pergunte antes de construir.
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- 'Volume de impressions vs. campaigns: a mesma estratégia serve para os dois?'

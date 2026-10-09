@@ -216,6 +216,8 @@ def ticket_show(ticket_id: str) -> None:
         typer.echo(f"Ticket {ticket_id} não encontrado ou ainda não liberado.")
         raise typer.Exit(1)
     for key, value in t.items():
+        if key == "hints":  # dicas são liberadas pelo Tech Lead, uma a uma
+            continue
         if isinstance(value, list):
             typer.echo(f"{key}:")
             for v in value:
@@ -230,11 +232,23 @@ def incident_show(incident_id: str) -> None:
     from novamarket.work import find, load_incidents
 
     inc = find(load_incidents(), incident_id)
-    if inc is None:
+    if inc is None or inc.get("status") == "SCHEDULED":
         typer.echo(f"Incidente {incident_id} não encontrado.")
         raise typer.Exit(1)
     for key, value in inc.items():
         typer.echo(f"{key}: {value}")
+
+
+@incident_app.command("list")
+def incident_list() -> None:
+    """Lista incidentes já abertos (os agendados só aparecem quando o Tech Lead os libera)."""
+    from novamarket.work import load_incidents
+
+    open_ = [i for i in load_incidents() if i.get("status") != "SCHEDULED"]
+    if not open_:
+        typer.echo("Nenhum incidente aberto.")
+    for i in open_:
+        typer.echo(f"  {i['id']:<9} {i.get('severity', '-'):<5} {i.get('status', '-'):<12} {i.get('title', '')}")
 
 
 @environment_app.command("check")

@@ -1,0 +1,15 @@
+id: INC-001
+title: Receita do dashboard maior que a do Financeiro
+severity: SEV2
+status: SCHEDULED
+reported_by: Lucas Prado (BI)
+related_ticket: NM-008
+symptoms:
+- Receita diária no BI ~1-3% acima do número oficial do Financeiro
+- A diferença varia por dia e não é constante
+- O Financeiro confirma o número da fonte
+impact: Fechamento financeiro bloqueado; confiança no BI abalada.
+evidence_locations:
+- raw/sales/
+- staging/sales/
+- data/quality_reports/

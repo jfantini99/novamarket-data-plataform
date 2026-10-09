@@ -1,0 +1,28 @@
+id: NM-002
+title: Checks de qualidade para vendas
+level: 1
+type: data_quality
+status: BACKLOG
+priority: P2
+requester: Roberto Vieira (Governança)
+estimate: 1-2 dias
+depends_on:
+- NM-001
+slack: 'Roberto: ''Vi que vendas entrou no lake. Quais garantias de qualidade existem? Preciso saber antes
+  de liberar acesso ao BI.'''
+business_context: Vendas alimenta o número oficial de receita. Dados ruins viram decisões ruins.
+description: Cobrir orders, order_items e payments no framework de qualidade, com severidades justificadas.
+acceptance_criteria:
+- Datasets de vendas em configs/quality/datasets.yaml
+- Cada regra tem severidade (error/warn) com justificativa em comentário
+- Um relatório que explique quais falhas são da fonte e quais seriam bug seu
+- Pelo menos um check novo, se necessário, com teste
+notes:
+- Rode `novamarket quality run --only-failures` e investigue antes de decidir.
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- Toda falha é um bug? Quem é o dono do dado?

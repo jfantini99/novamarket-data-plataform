@@ -1,0 +1,14 @@
+id: INC-003
+title: Menos eventos de entrega e lixo nos cliques
+severity: SEV3
+status: SCHEDULED
+reported_by: Paula Reis (SRE)
+related_ticket: NM-010
+symptoms:
+- Dashboard de entregas com menos eventos que o normal em um dia
+- Linhas ilegíveis em arquivos de cliques de marketing
+impact: Indicadores de entrega e ROI de campanhas subestimados.
+evidence_locations:
+- data/generated/logistics/
+- data/quality_reports/
+- raw/marketing/

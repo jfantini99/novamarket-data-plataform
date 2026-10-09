@@ -1,0 +1,30 @@
+id: NM-011
+title: Backfill de 90 dias em escala medium (performance e custo)
+level: 6
+type: performance
+status: BACKLOG
+priority: P2
+requester: Aline Moura (Data Scientist)
+estimate: 1-2 semanas
+depends_on:
+- NM-003
+- NM-005
+slack: 'Aline: ''Para o modelo de demanda eu preciso de 90 dias limpos de vendas e marketing. Rodei uma
+  amostra e demorou uma eternidade. Dá pra fazer sem estourar o orçamento?'''
+business_context: O modelo de previsão de demanda depende de histórico completo e barato de reprocessar.
+description: Reprocessar 90 dias em escala medium com tempo e custo medidos, identificando gargalos e
+  justificando as otimizações.
+acceptance_criteria:
+- Medição antes/depois (tempo, memória, requisições)
+- Estratégia de paralelismo respeitando pools e a API
+- Estimativa de custo na AWS e justificativa de tamanho de arquivo/partição
+- Sem regressão de qualidade (data quality verde)
+notes:
+- Gere dados com `novamarket data generate --scale medium`.
+definition_of_done:
+- Código revisado (ruff limpo) e com testes
+- 'Idempotente: reexecutar a mesma janela não duplica dados'
+- Instrumentado (pipeline_run) e com SLA em configs/sla.yaml
+- Documentação atualizada
+hints:
+- 'Meça primeiro. Onde está o tempo: rede, parse, escrita ou espera de pool?'

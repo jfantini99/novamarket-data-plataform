@@ -13,7 +13,7 @@ language:
   code_and_technical_names: en
 
 lab:
-  current_phase: 10
+  current_phase: 11
   phases:
     0: { name: "Análise do ambiente",      status: done }
     1: { name: "Estrutura do repositório", status: done }
@@ -26,14 +26,18 @@ lab:
     8: { name: "Observabilidade",          status: done }
     9: { name: "CI/CD",                    status: done }  # workflow escrito; ainda não executou no GitHub (sem remote)
     10: { name: "Skills e CLI",            status: done }
-    11: { name: "Tickets e incidentes",    status: pending }
+    11: { name: "Tickets e incidentes",    status: done }
     12: { name: "Validação completa",      status: pending }
 
 tickets:
-  active: []
+  active: [NM-001]
   done: []
+  backlog: [NM-002, NM-003, NM-004, NM-005, NM-006, NM-007, NM-008, NM-009, NM-010, NM-011, NM-012]
 
-incidents: []
+incidents:
+  - { id: INC-001, status: SCHEDULED, ticket: NM-008 }
+  - { id: INC-002, status: SCHEDULED, ticket: NM-009 }
+  - { id: INC-003, status: SCHEDULED, ticket: NM-010 }
 
 architecture:
   orchestration: "Airflow (Docker, LocalExecutor)"
@@ -52,6 +56,7 @@ decisions:
   - { date: "2026-10-09", decision: "Conta Snowflake trial criada só na Fase 6 para não desperdiçar os 30 dias" }
 
 changes:
+  - { date: "2026-10-09", change: "Fase 11: 12 tickets (6 níveis) em tickets/, 3 incidentes agendados em incidents/ com causas raiz seladas, docs/onboarding/, CLAUDE.md. NM-001 READY." }
   - { date: "2026-10-09", change: "Fase 10: 8 skills e 7 comandos em .claude/; CLI ganhou ticket list|show, incident show, environment check (tickets/incidentes lidos de tickets/*.yaml e incidents/*.yaml; causa raiz nunca lida)." }
   - { date: "2026-10-09", change: "Fase 9: GitHub Actions (ruff, pytest unit, quality config, compileall DAGs, sqlfluff, terraform fmt/validate, compose config, varredura de segredos); template de PR; ruff/sqlfluff configurados e verdes localmente. Deploy NÃO automatizado." }
   - { date: "2026-10-09", change: "Fase 8: logs JSON, pipeline_run (métricas em runs.jsonl, CloudWatch opcional), configs/sla.yaml, novamarket pipeline status; DAGs instrumentadas" }
