@@ -13,7 +13,7 @@ language:
   code_and_technical_names: en
 
 lab:
-  current_phase: 11
+  current_phase: 12
   phases:
     0: { name: "Análise do ambiente",      status: done }
     1: { name: "Estrutura do repositório", status: done }
@@ -27,7 +27,7 @@ lab:
     9: { name: "CI/CD",                    status: done }  # workflow escrito; ainda não executou no GitHub (sem remote)
     10: { name: "Skills e CLI",            status: done }
     11: { name: "Tickets e incidentes",    status: done }
-    12: { name: "Validação completa",      status: pending }
+    12: { name: "Validação completa",      status: done }  # make validate escrito; make não instalado nesta máquina, passos rodados manualmente
 
 tickets:
   active: [NM-001]
@@ -56,6 +56,7 @@ decisions:
   - { date: "2026-10-09", decision: "Conta Snowflake trial criada só na Fase 6 para não desperdiçar os 30 dias" }
 
 changes:
+  - { date: "2026-10-09", change: "Fase 12: alvo make validate (lint, ambiente, testes, config, status). Validado manualmente: lint limpo, 54 testes (unit+integração) passam, serviços no ar." }
   - { date: "2026-10-09", change: "Fase 11: 12 tickets (6 níveis) em tickets/, 3 incidentes agendados em incidents/ com causas raiz seladas, docs/onboarding/, CLAUDE.md. NM-001 READY." }
   - { date: "2026-10-09", change: "Fase 10: 8 skills e 7 comandos em .claude/; CLI ganhou ticket list|show, incident show, environment check (tickets/incidentes lidos de tickets/*.yaml e incidents/*.yaml; causa raiz nunca lida)." }
   - { date: "2026-10-09", change: "Fase 9: GitHub Actions (ruff, pytest unit, quality config, compileall DAGs, sqlfluff, terraform fmt/validate, compose config, varredura de segredos); template de PR; ruff/sqlfluff configurados e verdes localmente. Deploy NÃO automatizado." }

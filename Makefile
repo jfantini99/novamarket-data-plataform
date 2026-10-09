@@ -9,7 +9,7 @@ help:            ## Lista os alvos
 
 COMPOSE = docker compose --env-file .env -f docker/docker-compose.yml
 
-up:              ## Sobe o ambiente local (Postgres ERP + MinIO)
+up:              ## Sobe o ambiente local (Postgres ERP + S3 local)
 	$(COMPOSE) up -d
 
 down:            ## Derruba o ambiente local (mantém os dados)
@@ -36,5 +36,10 @@ generate-data:   ## Gera dados sinteticos e carrega o ERP
 	.venv/Scripts/novamarket data generate --scale small
 	.venv/Scripts/novamarket data load-erp
 
-validate:        ## Valida o ambiente completo (Fase 12)
-	@echo "TODO Fase 12: novamarket environment check"
+validate:        ## Valida o ambiente completo (lint, testes, servicos, config)
+	@echo "== 1/5 lint" && $(MAKE) --no-print-directory lint
+	@echo "== 2/5 ambiente" && .venv/Scripts/novamarket environment check
+	@echo "== 3/5 testes (unitarios + integracao)" && .venv/Scripts/python -m pytest -q
+	@echo "== 4/5 config" && $(COMPOSE) config -q && .venv/Scripts/novamarket quality list > /dev/null && .venv/Scripts/novamarket ticket list
+	@echo "== 5/5 pipelines" && .venv/Scripts/novamarket pipeline status
+	@echo "VALIDACAO OK"
