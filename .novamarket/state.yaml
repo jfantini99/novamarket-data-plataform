@@ -13,7 +13,7 @@ language:
   code_and_technical_names: en
 
 lab:
-  current_phase: 9
+  current_phase: 10
   phases:
     0: { name: "Análise do ambiente",      status: done }
     1: { name: "Estrutura do repositório", status: done }
@@ -25,7 +25,7 @@ lab:
     7: { name: "Data Quality",             status: done }
     8: { name: "Observabilidade",          status: done }
     9: { name: "CI/CD",                    status: done }  # workflow escrito; ainda não executou no GitHub (sem remote)
-    10: { name: "Skills e CLI",            status: pending }
+    10: { name: "Skills e CLI",            status: done }
     11: { name: "Tickets e incidentes",    status: pending }
     12: { name: "Validação completa",      status: pending }
 
@@ -52,6 +52,7 @@ decisions:
   - { date: "2026-10-09", decision: "Conta Snowflake trial criada só na Fase 6 para não desperdiçar os 30 dias" }
 
 changes:
+  - { date: "2026-10-09", change: "Fase 10: 8 skills e 7 comandos em .claude/; CLI ganhou ticket list|show, incident show, environment check (tickets/incidentes lidos de tickets/*.yaml e incidents/*.yaml; causa raiz nunca lida)." }
   - { date: "2026-10-09", change: "Fase 9: GitHub Actions (ruff, pytest unit, quality config, compileall DAGs, sqlfluff, terraform fmt/validate, compose config, varredura de segredos); template de PR; ruff/sqlfluff configurados e verdes localmente. Deploy NÃO automatizado." }
   - { date: "2026-10-09", change: "Fase 8: logs JSON, pipeline_run (métricas em runs.jsonl, CloudWatch opcional), configs/sla.yaml, novamarket pipeline status; DAGs instrumentadas" }
   - { date: "2026-10-09", change: "Fase 7: framework de Data Quality (registry de checks, YAML em configs/quality, loaders jsonl/csv/postgres/s3, CLI quality run/list/checks, relatório JSON)" }
@@ -60,5 +61,5 @@ changes:
   - { date: "2026-10-09", change: "Fase 3: gerador de dados (tiny/small/medium) com defeitos e manifesto selado, ERP carregado no Postgres, mock APIs e-commerce/marketing em :8081 com chaos, CSVs de logística e exports de CX" }
   - { date: "2026-10-09", change: "Fase 2: Postgres ERP (5433) e S3 local RustFS (9000/9001) via Docker; venv Python 3.12 com uv; testes de infra" }
 
-skills_available: []   # preenchido na Fase 10
+skills_available: [airflow-debugging, aws-investigation, snowflake-analysis, sql-review, data-quality, pipeline-debugging, incident-response, data-engineering-review]
 

@@ -175,3 +175,77 @@ def pipeline_status(
             typer.echo(f"  {r['pipeline']}: {r['detail']}")
     if any(r["state"] in ("FAILED", "LATE") for r in rows):
         raise typer.Exit(1)
+
+
+# ------------------------------------------------------------------- tickets / incidents
+ticket_app = typer.Typer(help="Tickets do backlog", no_args_is_help=True)
+app.add_typer(ticket_app, name="ticket")
+incident_app = typer.Typer(help="Incidentes", no_args_is_help=True)
+app.add_typer(incident_app, name="incident")
+environment_app = typer.Typer(help="Ambiente local", no_args_is_help=True)
+app.add_typer(environment_app, name="environment")
+
+
+@ticket_app.command("list")
+def ticket_list(
+    status: Annotated[str, typer.Option(help="Filtrar por estado")] = "",
+    all_: Annotated[bool, typer.Option("--all", help="Incluir BACKLOG e DONE")] = False,
+) -> None:
+    """Lista tickets (por padrão, só os que estão em andamento ou prontos)."""
+    from novamarket.work import load_tickets, visible_tickets
+
+    tickets = visible_tickets(load_tickets())
+    if status:
+        tickets = [t for t in tickets if t["status"] == status.upper()]
+    elif not all_:
+        tickets = [t for t in tickets if t["status"] in ("READY", "IN_PROGRESS", "BLOCKED", "REVIEW")]
+    if not tickets:
+        typer.echo("Nenhum ticket para mostrar.")
+        return
+    for t in tickets:
+        typer.echo(f"  {t['id']:<10} {t['status']:<12} nível {t.get('level', '-')}  {t.get('title', '')}")
+
+
+@ticket_app.command("show")
+def ticket_show(ticket_id: str) -> None:
+    """Mostra um ticket completo."""
+    from novamarket.work import find, load_tickets, visible_tickets
+
+    t = find(visible_tickets(load_tickets()), ticket_id)
+    if t is None or t["status"] == "BACKLOG":
+        typer.echo(f"Ticket {ticket_id} não encontrado ou ainda não liberado.")
+        raise typer.Exit(1)
+    for key, value in t.items():
+        if isinstance(value, list):
+            typer.echo(f"{key}:")
+            for v in value:
+                typer.echo(f"  - {v}")
+        else:
+            typer.echo(f"{key}: {value}")
+
+
+@incident_app.command("show")
+def incident_show(incident_id: str) -> None:
+    """Mostra o incidente (sintomas e impacto; a causa raiz fica selada)."""
+    from novamarket.work import find, load_incidents
+
+    inc = find(load_incidents(), incident_id)
+    if inc is None:
+        typer.echo(f"Incidente {incident_id} não encontrado.")
+        raise typer.Exit(1)
+    for key, value in inc.items():
+        typer.echo(f"{key}: {value}")
+
+
+@environment_app.command("check")
+def environment_check() -> None:
+    """Verifica ferramentas e serviços locais. Sai com código 1 se algo essencial faltar."""
+    from novamarket.environment import run_checks
+
+    results = run_checks()
+    for c in results:
+        mark = "OK  " if c.ok else "FALTA"
+        typer.echo(f"  [{mark}] {c.name:<20} {c.detail}" + (f"  -> {c.hint}" if c.hint else ""))
+    optional = {"aws", "terraform", "Airflow UI"}  # não essenciais para começar
+    if any(not c.ok and c.name not in optional for c in results):
+        raise typer.Exit(1)
