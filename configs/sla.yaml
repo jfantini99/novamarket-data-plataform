@@ -1,0 +1,16 @@
+# SLA por pipeline.
+#   freshness_hours: idade máxima do último SUCESSO
+#   max_duration_s:  duração máxima aceitável de uma execução
+pipelines:
+  ingest_products:
+    freshness_hours: 30
+    max_duration_s: 300
+  ingest_customers:
+    freshness_hours: 30
+    max_duration_s: 600
+  ingest_logistics_shipments:
+    freshness_hours: 30
+    max_duration_s: 3900
+  ingest_logistics_delivery_events:
+    freshness_hours: 30
+    max_duration_s: 3900

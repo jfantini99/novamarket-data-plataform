@@ -13,14 +13,14 @@ import random
 import shutil
 import unicodedata
 from collections import Counter, defaultdict
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import UTC, date, datetime, time, timedelta, timezone
 from pathlib import Path
 
 from novamarket.datagen import catalog as cat
 from novamarket.datagen.config import INCIDENT_SCENARIOS, SCALES, Scale
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-UTC = timezone.utc
+UTC = UTC
 SOURCES = ("ecommerce", "erp", "logistics", "marketing", "customer_service")
 
 
@@ -262,7 +262,7 @@ def _gen_customers(rng, sc: Scale, out: Path, d: Counter, end: date, counts: dic
 
     # mesma pessoa cadastrada duas vezes com IDs diferentes
     next_id = sc.customers + 1
-    for cid, country in rng.sample(customers, int(sc.customers * 0.02)):
+    for _cid, country in rng.sample(customers, int(sc.customers * 0.02)):
         first, last = rng.choice(cat.FIRST_NAMES), rng.choice(cat.LAST_NAMES)
         email = f"{ascii_fold(first)}.{ascii_fold(last)}{rng.randint(1, 9999)}@{rng.choice(cat.EMAIL_DOMAINS)}"
         created = now - timedelta(days=rng.randint(1, 60))
@@ -578,7 +578,7 @@ def _gen_logistics(rng, sc, out, d, end, orders, stores, inject, counts):
             evt.write(dt.astimezone(timezone(timedelta(hours=cat.TZ_OFFSET[country]))).date(), row)
             d["delivery_event_duplicate_row"] += 1
 
-    for oid, created, updated, country, channel, status, _ in orders:
+    for oid, created, _updated, country, channel, status, _ in orders:
         if channel == "store" or status not in ("SHIPPED", "DELIVERED", "RETURNED"):
             continue
         shipped = created + timedelta(hours=rng.randint(4, 36))
@@ -646,7 +646,7 @@ def _gen_customer_service(rng, sc, out, d, end, orders, counts):
     cap = at_midnight(end) + timedelta(hours=23)
     n_orders = len(orders)
     tid = iid = cid = 0
-    for oid, created, updated, country, channel, status, cust in orders:
+    for oid, _created, updated, country, channel, _status, cust in orders:
         if rng.random() >= sc.ticket_rate * (0.4 if channel == "store" else 1.2):
             continue
         tid += 1

@@ -1,0 +1,78 @@
+# Checks de Data Quality. Para adicionar um check: acrescente uma linha em `checks`.
+# Checks disponíveis: veja `novamarket quality checks`. Parâmetros: o que a função do check aceita.
+# severity: error (bloqueia, exit code 1) | warn (apenas informa). Padrão: error.
+# `key` é opcional e mostra uma coluna identificadora nos exemplos de falha.
+
+datasets:
+  ecommerce.customers:
+    source: {type: jsonl, path: data/generated/ecommerce/customers.jsonl}
+    checks:
+      - {check: row_count, min: 1}
+      - {check: not_null, column: customer_id}
+      - {check: unique, column: customer_id}
+      - {check: not_null, column: email, severity: warn, key: customer_id}
+      - {check: regex, column: email, pattern: '[^@\s]+@[^@\s]+\.[^@\s]+', severity: warn, key: customer_id}
+
+  ecommerce.orders:
+    source: {type: jsonl, path: data/generated/ecommerce/orders.jsonl}
+    checks:
+      - {check: row_count, min: 1}
+      - {check: not_null, column: order_id}
+      - {check: unique, column: order_id}
+      - {check: accepted_values, column: status, key: order_id,
+         values: [CREATED, PAID, SHIPPED, DELIVERED, COMPLETED, CANCELED, RETURNED]}
+      - {check: range, column: total_amount, min: 0, key: order_id}
+      - {check: referential_integrity, column: customer_id,
+         ref_dataset: ecommerce.customers, ref_column: customer_id}
+      - {check: schema, expected_columns: [order_id, customer_id, channel, store_id, status, currency,
+                                           country, total_amount, discount_amount, shipping_amount,
+                                           campaign_id, created_at, updated_at]}
+
+  ecommerce.order_items:
+    source: {type: jsonl, path: data/generated/ecommerce/order_items.jsonl}
+    checks:
+      - {check: not_null, column: order_item_id}
+      - {check: unique, column: order_item_id}
+      - {check: range, column: quantity, min: 1, max: 100, key: order_item_id}
+      - {check: not_null, column: unit_price, key: order_item_id}
+      - {check: referential_integrity, column: order_id,
+         ref_dataset: ecommerce.orders, ref_column: order_id}
+
+  ecommerce.payments:
+    source: {type: jsonl, path: data/generated/ecommerce/payments.jsonl}
+    checks:
+      - {check: unique, column: payment_id}
+      - {check: accepted_values, column: status, key: payment_id,
+         values: [APPROVED, DECLINED, PENDING, REFUNDED]}
+      - {check: referential_integrity, column: order_id,
+         ref_dataset: ecommerce.orders, ref_column: order_id}
+
+  erp.products:
+    source: {type: postgres, query: "SELECT * FROM erp.products"}
+    checks:
+      - {check: row_count, min: 1}
+      - {check: unique, column: sku}
+      - {check: not_null, column: category, severity: warn, key: product_id}
+      - {check: range, column: list_price, min: 0}
+
+  erp.stock:
+    source: {type: postgres, query: "SELECT * FROM inventory.stock"}
+    checks:
+      - {check: range, column: quantity_on_hand, min: 0, key: product_id}
+      - {check: not_null, column: updated_at, severity: warn, key: product_id}
+
+  logistics.shipments:
+    source: {type: csv, path: "data/generated/logistics/shipments_*.csv"}
+    checks:
+      - {check: unique, column: shipment_id}
+      - {check: not_null, column: carrier, severity: warn, key: shipment_id}
+
+  marketing.clicks:
+    source: {type: jsonl, path: data/generated/marketing/clicks.jsonl}
+    checks:
+      - {check: unique, column: click_id}
+
+  customer_service.tickets:
+    source: {type: csv, path: data/generated/customer_service/tickets.csv}
+    checks:
+      - {check: not_null, column: category, severity: warn, key: ticket_id}

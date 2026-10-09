@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Lint, testes e validações
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Instalar dependências
+        run: pip install -e ".[dev]"
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Testes unitários
+        run: pytest tests/unit -q
+      - name: Configuração de Data Quality válida
+        run: novamarket quality list
+      - name: DAGs compilam
+        run: python -m compileall -q airflow/dags
+
+  sql:
+    name: Validação de SQL
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install sqlfluff
+      - name: sqlfluff lint
+        run: sqlfluff lint sql docker/postgres/init
+
+  terraform:
+    name: Terraform fmt e validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: fmt
+        run: terraform fmt -check -recursive infrastructure/terraform
+      - name: validate (dev e prod, sem backend e sem credenciais)
+        run: |
+          for env in dev prod; do
+            (cd infrastructure/terraform/environments/$env && terraform init -backend=false -input=false && terraform validate)
+          done
+
+  docker:
+    name: Docker Compose válido
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: compose config
+        run: |
+          cp .env.example .env
+          docker compose --env-file .env -f docker/docker-compose.yml config -q
+
+  secrets:
+    name: Varredura de segredos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Procurar chaves AWS e chaves privadas
+        run: |
+          if grep -rIEn --exclude-dir=.git --exclude-dir=.venv --exclude-dir=.terraform \
+              -e 'AKIA[0-9A-Z]{16}' -e 'BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' . ; then
+            echo "::error::possível segredo encontrado"; exit 1
+          fi
+          if git ls-files | grep -E '(^|/)\.env$|\.tfstate$|\.tfvars$'; then
+            echo "::error::arquivo sensível versionado"; exit 1
+          fi
+
+  # Deploy NÃO é automático. Quando existir, ficará em um workflow separado, com aprovação manual
+  # (environment protegido) e role assumida via OIDC, sem chaves de longa duração.

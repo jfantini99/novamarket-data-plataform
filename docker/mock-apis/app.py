@@ -98,13 +98,16 @@ def make_router(domain: str):
     def add(name: str, rel: str):
         @router.get(f"/{name}", name=f"list_{name}")
         def list_resource(
-            updated_since: str | None = Query(None, description="ISO-8601 UTC"),
+            updated_since: str | None = Query(None, description="ISO-8601 UTC, inclusivo"),
+            updated_until: str | None = Query(None, description="ISO-8601 UTC, exclusivo"),
             page: int = Query(1, ge=1),
             page_size: int = Query(500, ge=1, le=1000),
         ) -> dict:
             rows = load(rel)
             if updated_since:
                 rows = [r for r in rows if r.get("_ts", "") >= updated_since]
+            if updated_until:
+                rows = [r for r in rows if r.get("_ts", "") < updated_until]
             start = (page - 1) * page_size
             chunk = rows[start : start + page_size]
             data = [{k: v for k, v in r.items() if k != "_ts"} for r in chunk]

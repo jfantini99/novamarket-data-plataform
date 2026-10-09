@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.5"]
+dev = ["pytest>=8", "ruff>=0.5", "sqlfluff>=3"]
 
 [project.scripts]
 novamarket = "novamarket.cli:app"
@@ -30,5 +30,12 @@ packages = ["src/novamarket"]
 testpaths = ["tests"]
 
 [tool.ruff]
-line-length = 100
+line-length = 110
 src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]  # comprimento de linha não é bloqueante
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]

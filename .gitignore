@@ -31,6 +31,8 @@ build/
 # Dados gerados localmente (reproduziveis via `novamarket data generate`)
 data/generated/
 data/landing/
+data/quality_reports/
+data/observability/
 *.parquet
 *.csv.gz
 

@@ -13,18 +13,18 @@ language:
   code_and_technical_names: en
 
 lab:
-  current_phase: 3
+  current_phase: 9
   phases:
     0: { name: "Análise do ambiente",      status: done }
     1: { name: "Estrutura do repositório", status: done }
     2: { name: "Infraestrutura local",     status: done }
     3: { name: "Fontes de dados",          status: done }
-    4: { name: "AWS",                      status: pending }
-    5: { name: "Airflow",                  status: pending }
+    4: { name: "AWS",                      status: in_progress }  # código Terraform validado; falta conta AWS + apply
+    5: { name: "Airflow",                  status: done }
     6: { name: "Snowflake",                status: pending }
-    7: { name: "Data Quality",             status: pending }
-    8: { name: "Observabilidade",          status: pending }
-    9: { name: "CI/CD",                    status: pending }
+    7: { name: "Data Quality",             status: done }
+    8: { name: "Observabilidade",          status: done }
+    9: { name: "CI/CD",                    status: done }  # workflow escrito; ainda não executou no GitHub (sem remote)
     10: { name: "Skills e CLI",            status: pending }
     11: { name: "Tickets e incidentes",    status: pending }
     12: { name: "Validação completa",      status: pending }
@@ -52,6 +52,11 @@ decisions:
   - { date: "2026-10-09", decision: "Conta Snowflake trial criada só na Fase 6 para não desperdiçar os 30 dias" }
 
 changes:
+  - { date: "2026-10-09", change: "Fase 9: GitHub Actions (ruff, pytest unit, quality config, compileall DAGs, sqlfluff, terraform fmt/validate, compose config, varredura de segredos); template de PR; ruff/sqlfluff configurados e verdes localmente. Deploy NÃO automatizado." }
+  - { date: "2026-10-09", change: "Fase 8: logs JSON, pipeline_run (métricas em runs.jsonl, CloudWatch opcional), configs/sla.yaml, novamarket pipeline status; DAGs instrumentadas" }
+  - { date: "2026-10-09", change: "Fase 7: framework de Data Quality (registry de checks, YAML em configs/quality, loaders jsonl/csv/postgres/s3, CLI quality run/list/checks, relatório JSON)" }
+  - { date: "2026-10-09", change: "Fase 5: Airflow 3.1 (LocalExecutor) em :8080 com pools, connections e variables por código; DAGs ingest_products, ingest_customers, ingest_logistics_files (pausadas); API mock ganhou updated_until. Ingestão de vendas deliberadamente NÃO criada (primeiro ticket)." }
+  - { date: "2026-10-09", change: "Fase 4 (parcial): Terraform instalado; módulos s3/iam/monitoring/networking/rds; ambientes dev e prod validados (init -backend=false + validate). NADA aplicado na AWS." }
   - { date: "2026-10-09", change: "Fase 3: gerador de dados (tiny/small/medium) com defeitos e manifesto selado, ERP carregado no Postgres, mock APIs e-commerce/marketing em :8081 com chaos, CSVs de logística e exports de CX" }
   - { date: "2026-10-09", change: "Fase 2: Postgres ERP (5433) e S3 local RustFS (9000/9001) via Docker; venv Python 3.12 com uv; testes de infra" }
 

@@ -21,14 +21,16 @@ ps:              ## Mostra o estado dos containers
 test:            ## Roda pytest
 	.venv/Scripts/python -m pytest
 
-lint:            ## Roda ruff (Fase 9)
-	@echo "TODO Fase 9: ruff check ."
+lint:            ## Roda ruff e sqlfluff
+	.venv/Scripts/python -m ruff check .
+	.venv/Scripts/python -m sqlfluff lint sql docker/postgres/init
 
-quality:         ## Roda checks de Data Quality (Fase 7)
-	@echo "TODO Fase 7: novamarket quality run"
+quality:         ## Roda os checks de Data Quality
+	.venv/Scripts/novamarket quality run
 
-airflow:         ## Abre/inicializa o Airflow (Fase 5)
-	@echo "TODO Fase 5"
+airflow:         ## Mostra o estado do Airflow e a URL
+	@docker ps --filter name=nm-airflow --format "{{.Names}}  {{.Status}}"
+	@echo "UI: http://localhost:8080  (usuario admin; senha em AIRFLOW_ADMIN_PASSWORD no .env)"
 
 generate-data:   ## Gera dados sinteticos e carrega o ERP
 	.venv/Scripts/novamarket data generate --scale small

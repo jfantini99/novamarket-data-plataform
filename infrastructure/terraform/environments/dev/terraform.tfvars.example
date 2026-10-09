@@ -1,0 +1,5 @@
+# Copie para terraform.tfvars (ignorado pelo Git) e ajuste.
+# ARN do seu usuário IAM: aws sts get-caller-identity --profile novamarket-dev
+trusted_principal_arns = ["arn:aws:iam::123456789012:user/SEU_USUARIO"]
+alert_emails           = ["voce@exemplo.com"]
+monthly_budget_usd     = 5

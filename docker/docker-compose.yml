@@ -4,6 +4,34 @@
 
 name: novamarket
 
+# Configuração comum dos componentes do Airflow (LocalExecutor, sem Celery/Redis: economiza RAM).
+x-airflow-common: &airflow-common
+  image: apache/airflow:3.1.0-python3.12
+  user: "${AIRFLOW_UID:-50000}:0"
+  environment: &airflow-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-apiserver:8080/execution/
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET}
+    AIRFLOW__API__SECRET_KEY: ${AIRFLOW_API_SECRET_KEY}
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${AIRFLOW_DB_PASSWORD}@airflow-postgres:5432/airflow
+    PYTHONPATH: /opt/airflow/src
+    NOVAMARKET_OBS_DIR: /opt/airflow/observability
+    # Connections e variables como código (sem segredos no repositório: vêm do .env)
+    AIRFLOW_CONN_ERP_POSTGRES: postgres://${ERP_DB_USER}:${ERP_DB_PASSWORD}@erp-postgres:5432/${ERP_DB_NAME}
+    AIRFLOW_CONN_AWS_LAKE: aws://${S3_LOCAL_ACCESS_KEY}:${S3_LOCAL_SECRET_KEY}@/?region_name=${AWS_REGION}&endpoint_url=http%3A%2F%2Fs3%3A9000
+    AIRFLOW_CONN_ECOMMERCE_API: http://api:${MOCK_API_KEY}@mock-apis:8000
+    AIRFLOW_VAR_LAKE_BUCKET: ${NOVAMARKET_S3_BUCKET}
+  volumes:
+    - ../airflow/dags:/opt/airflow/dags
+    - ../airflow/plugins:/opt/airflow/plugins
+    - ../airflow/logs:/opt/airflow/logs
+    - ../src:/opt/airflow/src:ro
+    - ../data/observability:/opt/airflow/observability
+    - ../data/generated/logistics:/opt/airflow/landing/logistics:ro
+
 services:
   erp-postgres:
     image: postgres:16-alpine
@@ -80,6 +108,84 @@ services:
       - ../data/generated:/data:ro
     mem_limit: 1g
 
+  # ------------------------------------------------------------------ Airflow (Fase 5)
+  airflow-postgres:
+    image: postgres:16-alpine
+    container_name: nm-airflow-postgres
+    environment:
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: ${AIRFLOW_DB_PASSWORD}
+    volumes:
+      - airflow_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    mem_limit: 384m
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: nm-airflow-init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate &&
+        airflow pools set ecommerce_api 3 "API e-commerce (limita concorrência)" &&
+        airflow pools set erp_db 2 "ERP PostgreSQL (limita concorrência)"
+    depends_on:
+      airflow-postgres:
+        condition: service_healthy
+    restart: "no"
+
+  airflow-apiserver:
+    <<: *airflow-common
+    container_name: nm-airflow-apiserver
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        printf '{"admin": "%s"}' "$$AIRFLOW_ADMIN_PASSWORD" > /tmp/airflow_passwords.json &&
+        exec airflow api-server
+    environment:
+      <<: *airflow-env
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /tmp/airflow_passwords.json
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v2/monitor/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    mem_limit: 1536m
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: nm-airflow-scheduler
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    mem_limit: 1536m
+
+  airflow-dag-processor:
+    <<: *airflow-common
+    container_name: nm-airflow-dag-processor
+    command: dag-processor
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    mem_limit: 1024m
+
 volumes:
   erp_pgdata:
   s3_data:
+  airflow_pgdata:
