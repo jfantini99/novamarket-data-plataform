@@ -1,4 +1,4 @@
- resource "aws_s3_bucket" "this" {
+resource "aws_s3_bucket" "this" {
   bucket        = var.bucket_name
   force_destroy = var.force_destroy # false por padrão: destruir exige esvaziar o bucket antes
 }
