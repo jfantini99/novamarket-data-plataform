@@ -56,6 +56,7 @@ decisions:
   - { date: "2026-10-09", decision: "Conta Snowflake trial criada só na Fase 6 para não desperdiçar os 30 dias" }
 
 changes:
+  - { date: "2026-10-13", change: "Instalados AWS CLI 2.37 e make 4.4 (winget); Makefile validate corrigido para cmd.exe (barras invertidas, NUL). make validate roda; só o status de pipelines acusa LATE (sem execuções desde 09/10, esperado)." }
   - { date: "2026-10-09", change: "Fase 12: alvo make validate (lint, ambiente, testes, config, status). Validado manualmente: lint limpo, 54 testes (unit+integração) passam, serviços no ar." }
   - { date: "2026-10-09", change: "Fase 11: 12 tickets (6 níveis) em tickets/, 3 incidentes agendados em incidents/ com causas raiz seladas, docs/onboarding/, CLAUDE.md. NM-001 READY." }
   - { date: "2026-10-09", change: "Fase 10: 8 skills e 7 comandos em .claude/; CLI ganhou ticket list|show, incident show, environment check (tickets/incidentes lidos de tickets/*.yaml e incidents/*.yaml; causa raiz nunca lida)." }

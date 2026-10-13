@@ -38,8 +38,8 @@ generate-data:   ## Gera dados sinteticos e carrega o ERP
 
 validate:        ## Valida o ambiente completo (lint, testes, servicos, config)
 	@echo "== 1/5 lint" && $(MAKE) --no-print-directory lint
-	@echo "== 2/5 ambiente" && .venv/Scripts/novamarket environment check
-	@echo "== 3/5 testes (unitarios + integracao)" && .venv/Scripts/python -m pytest -q
-	@echo "== 4/5 config" && $(COMPOSE) config -q && .venv/Scripts/novamarket quality list > /dev/null && .venv/Scripts/novamarket ticket list
-	@echo "== 5/5 pipelines" && .venv/Scripts/novamarket pipeline status
+	@echo "== 2/5 ambiente" && .venv\Scripts\novamarket environment check
+	@echo "== 3/5 testes (unitarios + integracao)" && .venv\Scripts\python -m pytest -q
+	@echo "== 4/5 config" && $(COMPOSE) config -q && .venv\Scripts\novamarket quality list > NUL && .venv\Scripts\novamarket ticket list
+	@echo "== 5/5 pipelines" && .venv\Scripts\novamarket pipeline status
 	@echo "VALIDACAO OK"
